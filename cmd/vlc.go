@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,22 +12,29 @@ import (
 )
 
 var vlcCmd = &cobra.Command{
-	Use:   "vls",
+	Use:   "vlc",
 	Short: "Pack file using variable-lenght code",
 	Run:   pack,
 }
 
-const packedExtension = "vlc"
-
-/*	Открываем документ, котоырй отправил пользователь
+/*
+	Проверяем на ошибку: Если путь до файла равен нулю, либо пуст -> error
+	Открываем документ, котоырй отправил пользователь
 	Читаем зашифрованные данные и приводим их к строке
 	Пререзаписываем файл.
 			1) Меняем формат на .vlc
 			2) Удаляем фрагмент суффикс из конца строки, а после возвращаем копию данных (string.TrimSuffix)
 			3) Меняем права на чтение + запись
-
 */
+
+const packedExtension = "vlc"
+
+var ErrEmptyPath = errors.New("path to file is not corrected. Path is empty")
+
 func pack(_ *cobra.Command, args []string) {
+	if len(args) == 0 || args[0] == "" {
+		handleErr(ErrEmptyPath)
+	}
 	filePath := args[0]
 
 	r, err := os.Open(filePath)
@@ -39,7 +48,8 @@ func pack(_ *cobra.Command, args []string) {
 	}
 
 	//data -> Encode(data)
-	packed := "" + string(data)
+	packed := ""
+	fmt.Println(string(data)) // TODO: remove
 
 	err = ioutil.WriteFile(packedFileName(filePath), []byte(packed), 0644) //0644 - пользователь может записывать и читать, остальные - читать
 	if err != nil {

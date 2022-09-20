@@ -4,5 +4,9 @@ import "github.com/spf13/cobra"
 
 var packCmd = &cobra.Command{
 	Use:   "pack",
-	Short: "Pack file using variable-lenght code",
+	Short: "Pack file",
+}
+
+func init() {
+	rootCmd.AddCommand(packCmd)
 }
