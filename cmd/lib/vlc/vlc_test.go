@@ -105,8 +105,8 @@ func TestEncode(t *testing.T) {
 	}{
 		{
 			name: "base test",
-			str:  "My name is Ted",
-			want: "20 30 3C 18 77 4A E4 4D 28",
+			str:  "sometext for test",
+			want: "58 87 66 80 19 C4 8A 39 AB 20",
 		},
 	}
 	for _, tt := range tests {

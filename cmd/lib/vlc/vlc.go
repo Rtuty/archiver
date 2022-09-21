@@ -9,77 +9,29 @@ import (
 )
 
 /*
-    Подготовка строки. Заменяем заглавные буквы на маленькие с ! знаком (M -> !m)
-	Превращаем строку в бинарную последовательность. В массив нулей и едениц ('101001011010010111011010')
-	Разбиваем массив символов на чанки по 8 едениц в каждом ('10100101 10100101 11011010'). P.s. Делим массив битов на байты
-	Представляем полученные байты в виде шестнадцатеричных чисел
-	Возвращаем последовательность полученных чисел в виде строки
+Этапы исполнения команды (функции) pack:
+   	1) Подготовка строки. Заменяем заглавные буквы на маленькие с ! знаком (M -> !m)
+	2) Превращаем строку в бинарную последовательность. В массив нулей и едениц ('101001011010010111011010')
+	3) Разбиваем массив символов на чанки по 8 едениц в каждом ('10100101 10100101 11011010'). P.s. Делим массив битов на байты
+	4) Представляем полученные байты в виде шестнадцатеричных чисел
+	5) Возвращаем последовательность полученных чисел в виде строки
 */
 
-type encodingTable map[rune]string
+func Encode(str string) string {
+	str = prepareText(str)                              // подготавливаем строки. M -> !m
+	chunks := splitByChunks(encodeBin(str), chunksSize) // представляем строку в виде двоичной последовательности и разбиваем ее на части (chunks)
+	return chunks.ToHex().ToString()                    // конвертируем чанки в шестнадцатиричную систему и приводим к строке
+}
 
 type BinaryChunks []BinaryChunk
 type BinaryChunk string
 
-const chunksSize = 8
-
 type HexChunk string
 type HexChunks []HexChunk
 
-func Encode(str string) string {
-	str = prepareText(str)
-	chunks := splitByChunks(encodeBin(str), chunksSize)
-	return chunks.ToHex().ToString()
-}
+type encodingTable map[rune]string
 
-//
-func (hcs HexChunks) ToString() string {
-	const sep = " "
-
-	switch len(hcs) {
-	case 0:
-		return ""
-	case 1:
-		return string(hcs[0])
-	}
-
-	var buf strings.Builder
-
-	buf.WriteString(string(hcs[0]))
-
-	for _, hc := range hcs[1:] {
-		buf.WriteString(sep)
-		buf.WriteString(string(hc))
-	}
-
-	return buf.String()
-}
-
-func (bcs BinaryChunks) ToHex() HexChunks {
-	res := make(HexChunks, 0, len(bcs))
-
-	for _, chunk := range bcs {
-		hexchunk := chunk.ToHex()
-
-		res = append(res, hexchunk)
-	}
-
-	return res
-}
-
-func (bc BinaryChunk) ToHex() HexChunk {
-	num, err := strconv.ParseUint(string(bc), 2, chunksSize)
-	if err != nil {
-		panic("can't parse binary chunk: " + err.Error())
-	}
-	res := strings.ToUpper(fmt.Sprintf("%x", num))
-
-	if len(res) == 1 {
-		res = "0" + res
-	}
-
-	return HexChunk(res)
-}
+const chunksSize = 8
 
 // prepareText Заменяет заглавные буквы на маленькие с восклицательным знаком (M -> !m)
 func prepareText(str string) string {
@@ -180,4 +132,54 @@ func splitByChunks(bStr string, chunkSize int) BinaryChunks {
 	}
 
 	return res
+}
+
+// Перевод в шестнадцатиричную систему
+func (bc BinaryChunk) ToHex() HexChunk {
+	num, err := strconv.ParseUint(string(bc), 2, chunksSize)
+	if err != nil {
+		panic("can't parse binary chunk: " + err.Error())
+	}
+	res := strings.ToUpper(fmt.Sprintf("%x", num))
+
+	if len(res) == 1 {
+		res = "0" + res
+	}
+
+	return HexChunk(res)
+}
+
+func (bcs BinaryChunks) ToHex() HexChunks {
+	res := make(HexChunks, 0, len(bcs))
+
+	for _, chunk := range bcs {
+		hexchunk := chunk.ToHex()
+
+		res = append(res, hexchunk)
+	}
+
+	return res
+}
+
+// Приведение к строке
+func (hcs HexChunks) ToString() string {
+	const sep = " "
+
+	switch len(hcs) {
+	case 0:
+		return ""
+	case 1:
+		return string(hcs[0])
+	}
+
+	var buf strings.Builder
+
+	buf.WriteString(string(hcs[0]))
+
+	for _, hc := range hcs[1:] {
+		buf.WriteString(sep)
+		buf.WriteString(string(hc))
+	}
+
+	return buf.String()
 }
