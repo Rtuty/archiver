@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"archiver/cmd/lib/vlc"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -42,16 +43,19 @@ func pack(_ *cobra.Command, args []string) {
 		handleErr(err)
 	}
 
-	data, err := ioutil.ReadAll(r)
+	defer r.Close()
+
+	data, err := io.ReadAll(r)
 	if err != nil {
 		handleErr(err)
 	}
 
 	//data -> Encode(data)
-	packed := ""
+	packed := vlc.Encode(string(data))
+
 	fmt.Println(string(data)) // TODO: remove
 
-	err = ioutil.WriteFile(packedFileName(filePath), []byte(packed), 0644) //0644 - пользователь может записывать и читать, остальные - читать
+	err = os.WriteFile(packedFileName(filePath), []byte(packed), 0644) //0644 - пользователь может записывать и читать, остальные - читать
 	if err != nil {
 		handleErr(err)
 	}
