@@ -150,36 +150,6 @@ func getEncodingTable() encodingTable {
 	}
 }
 
-// func splitByChunks(bStr string, chunkSize int) BinaryChunks {
-// 	strLen := utf8.RuneCountInString(bStr)
-// 	chunksCount := strLen / chunkSize
-
-// 	if strLen/chunkSize != 0 {
-// 		chunksCount++
-// 	}
-
-// 	res := make(BinaryChunks, 0, chunksCount)
-
-// 	var buf strings.Builder
-
-// 	for i, ch := range bStr {
-// 		buf.WriteString(string(ch))
-// 		if (i+1) % chunkSize == 0 {
-// 			res = append(res, BinaryChunk(buf.String()))
-// 			buf.Reset()
-// 		}
-// 	}
-
-// 	if buf.Len() != 0 {
-// 		lastChunk := buf.String()
-// 		lastChunk += strings.Repeat("0", chunkSize-len(lastChunk))
-
-// 		res = append(res, BinaryChunk(lastChunk))
-// 	}
-
-// 	return res
-// }
-
 func splitByChunks(bStr string, chunkSize int) BinaryChunks {
 	strLen := utf8.RuneCountInString(bStr)
 
