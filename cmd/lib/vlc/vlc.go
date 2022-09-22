@@ -1,11 +1,8 @@
 package vlc
 
 import (
-	"fmt"
-	"strconv"
 	"strings"
 	"unicode"
-	"unicode/utf8"
 )
 
 /*
@@ -23,15 +20,16 @@ func Encode(str string) string {
 	return chunks.ToHex().ToString()                    // конвертируем чанки в шестнадцатиричную систему и приводим к строке
 }
 
-type BinaryChunks []BinaryChunk
-type BinaryChunk string
-
-type HexChunk string
-type HexChunks []HexChunk
-
-type encodingTable map[rune]string
-
-const chunksSize = 8
+/*
+Шестнадцатеричные чанки приводим к двоичной системе счисления
+Соединяем получанные чанки в одну бинарную строку
+Строим дерево декодирования
+С помощью ДД переводим закодированную строку в исходный текст
+*/
+func Decode(encodeText string) string {
+	//hChunks := NewHexChunks(encodeText)
+	return ""
+}
 
 // prepareText Заменяет заглавные буквы на маленькие с восклицательным знаком (M -> !m)
 func prepareText(str string) string {
@@ -100,86 +98,4 @@ func getEncodingTable() encodingTable {
 		'x': "00000000001",
 		'z': "000000000000",
 	}
-}
-
-func splitByChunks(bStr string, chunkSize int) BinaryChunks {
-	strLen := utf8.RuneCountInString(bStr)
-
-	chunksCount := strLen / chunkSize
-
-	if strLen/chunkSize != 0 {
-		chunksCount++
-	}
-
-	res := make(BinaryChunks, 0, chunksCount)
-
-	var buf strings.Builder
-
-	for i, ch := range bStr {
-		buf.WriteString(string(ch))
-
-		if (i+1)%chunkSize == 0 {
-			res = append(res, BinaryChunk(buf.String()))
-			buf.Reset()
-		}
-	}
-
-	if buf.Len() != 0 {
-		lastChunk := buf.String()
-		lastChunk += strings.Repeat("0", chunkSize-len(lastChunk))
-
-		res = append(res, BinaryChunk(lastChunk))
-	}
-
-	return res
-}
-
-// Перевод в шестнадцатиричную систему
-func (bc BinaryChunk) ToHex() HexChunk {
-	num, err := strconv.ParseUint(string(bc), 2, chunksSize)
-	if err != nil {
-		panic("can't parse binary chunk: " + err.Error())
-	}
-	res := strings.ToUpper(fmt.Sprintf("%x", num))
-
-	if len(res) == 1 {
-		res = "0" + res
-	}
-
-	return HexChunk(res)
-}
-
-func (bcs BinaryChunks) ToHex() HexChunks {
-	res := make(HexChunks, 0, len(bcs))
-
-	for _, chunk := range bcs {
-		hexchunk := chunk.ToHex()
-
-		res = append(res, hexchunk)
-	}
-
-	return res
-}
-
-// Приведение к строке
-func (hcs HexChunks) ToString() string {
-	const sep = " "
-
-	switch len(hcs) {
-	case 0:
-		return ""
-	case 1:
-		return string(hcs[0])
-	}
-
-	var buf strings.Builder
-
-	buf.WriteString(string(hcs[0]))
-
-	for _, hc := range hcs[1:] {
-		buf.WriteString(sep)
-		buf.WriteString(string(hc))
-	}
-
-	return buf.String()
 }

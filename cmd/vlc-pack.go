@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var vlcCmd = &cobra.Command{
+var vlcPackCmd = &cobra.Command{
 	Use:   "vlc",
 	Short: "Pack file using variable-lenght code",
 	Run:   pack,
@@ -69,5 +69,5 @@ func packedFileName(path string) string {
 }
 
 func init() {
-	packCmd.AddCommand(vlcCmd)
+	packCmd.AddCommand(vlcPackCmd)
 }
