@@ -84,6 +84,15 @@ func NewHexChunks(str string) HexChunks {
 	return res
 }
 
+// Объеденяет чанки в одну строку и возвращает ее текстом
+func (bcs BinaryChunks) Join() string {
+	var buf strings.Builder
+
+	for _, bc := range bcs {
+		buf.WriteString(string(bc))
+	}
+	return buf.String()
+}
 
 func (bcs BinaryChunks) ToHex() HexChunks {
 	res := make(HexChunks, 0, len(bcs))
@@ -110,4 +119,24 @@ func (bc BinaryChunk) ToHex() HexChunk {
 	}
 
 	return HexChunk(res)
+}
+
+func (hcs HexChunks) ToBinary() BinaryChunks {
+	res := make(BinaryChunks, 0, len(hcs))
+
+	for _, chunk := range hcs {
+		bChunk := chunk.ToBinary()
+
+		res = append(res, bChunk)
+	}
+	return res
+}
+
+func (hc HexChunk) ToBinary() BinaryChunk {
+	num, err := strconv.ParseUint(string(hc), 16, chunksSize)
+	if err != nil {
+		panic("can't parse hex chunk: " + err.Error())
+	}
+	res := fmt.Sprintf("%08b", num)
+	return BinaryChunk(res)
 }

@@ -26,9 +26,10 @@ func Encode(str string) string {
 Строим дерево декодирования
 С помощью ДД переводим закодированную строку в исходный текст
 */
-func Decode(encodeText string) string {
-	//hChunks := NewHexChunks(encodeText)
-	return ""
+func Decode(encodedText string) string {
+	bString := NewHexChunks(encodedText).ToBinary().Join()
+	dTree := getEncodingTable().DecodingTree()
+	return exporText(dTree.Decode(bString))
 }
 
 // prepareText Заменяет заглавные буквы на маленькие с восклицательным знаком (M -> !m)
@@ -39,6 +40,30 @@ func prepareText(str string) string {
 		if unicode.IsUpper(ch) {
 			buf.WriteRune('!')
 			buf.WriteRune(unicode.ToLower(ch))
+		} else {
+			buf.WriteRune(ch)
+		}
+	}
+	return buf.String()
+}
+
+// exportText Выполняет обратный prepareText функционал. Если в строке !m -> M
+func exporText(str string) string {
+	var buf strings.Builder
+	var isCapital bool
+
+	for _, ch := range str {
+		if isCapital {
+			buf.WriteRune(unicode.ToUpper(ch))
+			isCapital = false
+
+			continue
+		}
+
+		if ch == '!' {
+			isCapital = true
+
+			continue
 		} else {
 			buf.WriteRune(ch)
 		}

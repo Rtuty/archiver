@@ -75,3 +75,24 @@ func TestNewHexChunks(t *testing.T) {
 		})
 	}
 }
+
+func TestBinaryChunks_Join(t *testing.T) {
+	tests := []struct {
+		name string
+		bcs  BinaryChunks
+		want string
+	}{
+		{
+			name: "base text",
+			bcs:  BinaryChunks{"01001111", "10000000"},
+			want: "0100111110000000",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.bcs.Join(); got != tt.want {
+				t.Errorf("Join() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
