@@ -39,8 +39,8 @@ func unpack(_ *cobra.Command, args []string) {
 	}
 
 	//data -> Encode(data)
-	//packed := vlc.Decode(string(data))
-	packed := vlc.Encode(string(data))
+	packed := vlc.Decode(data)
+	//packed := vlc.Encode(string(data))
 
 	fmt.Println(string(data)) // TODO: remove
 

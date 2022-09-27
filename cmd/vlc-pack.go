@@ -55,7 +55,7 @@ func pack(_ *cobra.Command, args []string) {
 
 	fmt.Println(string(data)) // TODO: remove
 
-	err = os.WriteFile(packedFileName(filePath), []byte(packed), 0644) //0644 - пользователь может записывать и читать, остальные - читать
+	err = os.WriteFile(packedFileName(filePath), packed, 0644) //0644 - пользователь может записывать и читать, остальные - читать
 	if err != nil {
 		handleErr(err)
 	}

@@ -14,10 +14,10 @@ import (
 	5) Возвращаем последовательность полученных чисел в виде строки
 */
 
-func Encode(str string) string {
+func Encode(str string) []byte {
 	str = prepareText(str)                              // подготавливаем строки. M -> !m
 	chunks := splitByChunks(encodeBin(str), chunksSize) // представляем строку в виде двоичной последовательности и разбиваем ее на части (chunks)
-	return chunks.ToHex().ToString()                    // конвертируем чанки в шестнадцатиричную систему и приводим к строке
+	return chunks.Bytes()                               // конвертируем чанки в шестнадцатиричную систему и приводим к строке
 }
 
 /*
@@ -26,8 +26,8 @@ func Encode(str string) string {
 Строим дерево декодирования
 С помощью ДД переводим закодированную строку в исходный текст
 */
-func Decode(encodedText string) string {
-	bString := NewHexChunks(encodedText).ToBinary().Join()
+func Decode(encodedData []byte) string {
+	bString := NewBinChunks(encodedData).Join()
 	dTree := getEncodingTable().DecodingTree()
 	return exporText(dTree.Decode(bString))
 }

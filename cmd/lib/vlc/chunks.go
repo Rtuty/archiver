@@ -10,13 +10,42 @@ import (
 type BinaryChunks []BinaryChunk
 type BinaryChunk string
 
-type HexChunk string
-type HexChunks []HexChunk
-
 type encodingTable map[rune]string
 
 const chunksSize = 8
-const hexChunksSeparator = " "
+
+func NewBinChunks(data []byte) BinaryChunks {
+	res := make(BinaryChunks, 0, len(data))
+
+	for _, code := range data {
+		res = append(res, NewBinChunk(code))
+	}
+
+	return res
+}
+
+func NewBinChunk(code byte) BinaryChunk {
+	return BinaryChunk(fmt.Sprintf("%08b", code))
+}
+
+func (bcs BinaryChunks) Bytes() []byte {
+	res := make([]byte, 0, len(bcs))
+
+	for _, bc := range bcs {
+		res = append(res, bc.Byte())
+	}
+
+	return res
+}
+
+func (bc BinaryChunk) Byte() byte {
+	num, err := strconv.ParseUint(string(bc), 2, chunksSize)
+	if err != nil {
+		panic("can't parse binary chunk: " + err.Error())
+	}
+
+	return byte(num)
+}
 
 func splitByChunks(bStr string, chunkSize int) BinaryChunks {
 	strLen := utf8.RuneCountInString(bStr)
@@ -50,40 +79,6 @@ func splitByChunks(bStr string, chunkSize int) BinaryChunks {
 	return res
 }
 
-// Приведение к строке
-func (hcs HexChunks) ToString() string {
-
-	switch len(hcs) {
-	case 0:
-		return ""
-	case 1:
-		return string(hcs[0])
-	}
-
-	var buf strings.Builder
-
-	buf.WriteString(string(hcs[0]))
-
-	for _, hc := range hcs[1:] {
-		buf.WriteString(hexChunksSeparator)
-		buf.WriteString(string(hc))
-	}
-
-	return buf.String()
-}
-
-func NewHexChunks(str string) HexChunks {
-	parts := strings.Split(str, hexChunksSeparator)
-
-	res := make(HexChunks, 0, len(parts))
-
-	for _, part := range parts {
-		res = append(res, HexChunk(part))
-	}
-
-	return res
-}
-
 // Объеденяет чанки в одну строку и возвращает ее текстом
 func (bcs BinaryChunks) Join() string {
 	var buf strings.Builder
@@ -92,51 +87,4 @@ func (bcs BinaryChunks) Join() string {
 		buf.WriteString(string(bc))
 	}
 	return buf.String()
-}
-
-func (bcs BinaryChunks) ToHex() HexChunks {
-	res := make(HexChunks, 0, len(bcs))
-
-	for _, chunk := range bcs {
-		hexchunk := chunk.ToHex()
-
-		res = append(res, hexchunk)
-	}
-
-	return res
-}
-
-// Перевод в шестнадцатиричную систему
-func (bc BinaryChunk) ToHex() HexChunk {
-	num, err := strconv.ParseUint(string(bc), 2, chunksSize)
-	if err != nil {
-		panic("can't parse binary chunk: " + err.Error())
-	}
-	res := strings.ToUpper(fmt.Sprintf("%x", num))
-
-	if len(res) == 1 {
-		res = "0" + res
-	}
-
-	return HexChunk(res)
-}
-
-func (hcs HexChunks) ToBinary() BinaryChunks {
-	res := make(BinaryChunks, 0, len(hcs))
-
-	for _, chunk := range hcs {
-		bChunk := chunk.ToBinary()
-
-		res = append(res, bChunk)
-	}
-	return res
-}
-
-func (hc HexChunk) ToBinary() BinaryChunk {
-	num, err := strconv.ParseUint(string(hc), 16, chunksSize)
-	if err != nil {
-		panic("can't parse hex chunk: " + err.Error())
-	}
-	res := fmt.Sprintf("%08b", num)
-	return BinaryChunk(res)
 }
