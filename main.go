@@ -3,6 +3,6 @@ package main
 import "archiver/cmd"
 
 func main() {
-	//archiver pack vls <path to file> -out /path/to/packed-file
+	// archiver pack vlc <path to file>
 	cmd.Execute()
 }
